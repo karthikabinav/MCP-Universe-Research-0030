@@ -2,7 +2,7 @@ name: Auto Comment on Issues
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   issues: write
@@ -30,9 +30,20 @@ jobs:
               return;
             }
 
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const alreadyCommented = comments.some(comment => comment.body === body);
+            if (alreadyCommented) {
+              return;
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body
+              body,
             });
