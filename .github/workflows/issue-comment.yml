@@ -1,32 +1,10 @@
-name: Issue Commenter
+name: Disabled Legacy Issue Workflow
+
 on:
-  issues:
-    types: [opened, labeled]
+  workflow_dispatch:
 
 jobs:
-  comment:
+  noop:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
-      - name: Comment Bug
-        if: contains(github.event.issue.labels.*.name, 'bug')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-        run: |
-          gh issue comment "$ISSUE_URL" --body "Thank you. We will fix it."
-      - name: Comment Feature
-        if: contains(github.event.issue.labels.*.name, 'feature')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-        run: |
-          gh issue comment "$ISSUE_URL" --body "Thank you, we will consider to include this feature."
-      - name: Comment Discussion
-        if: contains(github.event.issue.labels.*.name, 'discussion')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-        run: |
-          gh issue comment "$ISSUE_URL" --body "Thanks for starting this discussion! We welcome community input."
+      - run: echo "Legacy workflow disabled"
