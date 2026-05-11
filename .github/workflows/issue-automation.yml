@@ -1,45 +1,30 @@
-name: Issue Auto-Comment
+name: Issue Auto Comment
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 jobs:
-  comment-on-issue:
+  auto-comment:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Comment on bug issues
+      - name: Comment for bug label
         if: contains(github.event.issue.labels.*.name, 'bug')
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Thank you. We will fix it.'
-            })
-
-      - name: Comment on feature issues
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "Thank you. We will fix it."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Comment for feature label
         if: contains(github.event.issue.labels.*.name, 'feature')
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Thank you, we will consider to include this feature.'
-            })
-
-      - name: Comment on discussion issues
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "Thank you, we will consider to include this feature."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Comment for discussion label
         if: contains(github.event.issue.labels.*.name, 'discussion')
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Thanks for starting this discussion! We welcome community input.'
-            })
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "Thanks for starting this discussion! We welcome community input."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
