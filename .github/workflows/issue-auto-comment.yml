@@ -1,0 +1,36 @@
+name: Issue Auto Comment
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment based on label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(label => label.name);
+            const comments = {
+              bug: "Thank you. We will fix it.",
+              feature: "Thank you, we will consider to include this feature.",
+              discussion: "Thanks for starting this discussion! We welcome community input."
+            };
+
+            for (const [label, body] of Object.entries(comments)) {
+              if (labels.includes(label)) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body
+                });
+                break;
+              }
+            }
