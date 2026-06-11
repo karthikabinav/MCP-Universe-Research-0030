@@ -1,28 +1,33 @@
-name: Label Commenter
+name: Issue Comment Automation
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
 
 jobs:
-  add-comment:
+  auto-comment:
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
-      - name: Check and comment
-        uses: actions/github-script@v7
+      - name: Comment based on label
+        uses: actions/github-script@v6
         with:
           script: |
-            const label = context.payload.label.name;
-            let msg = "";
-            if (label === "bug") msg = "Thank you. We will fix it.";
-            else if (label === "feature") msg = "Thank you, we will consider to include this feature.";
-            else if (label === "discussion") msg = "Thanks for starting this discussion! We welcome community input.";
-            if (msg) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: msg
-              });
+            const isOpened = context.payload.action === 'opened';
+            const labelsToCheck = isOpened ? context.payload.issue.labels.map(l => l.name) : [context.payload.label.name];
+            
+            for (const label of labelsToCheck) {
+              let body = '';
+              if (label === 'bug') body = 'Thank you. We will fix it.';
+              else if (label === 'feature') body = 'Thank you, we will consider to include this feature.';
+              else if (label === 'discussion') body = 'Thanks for starting this discussion! We welcome community input.';
+              
+              if (body) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: body
+                });
+              }
             }
