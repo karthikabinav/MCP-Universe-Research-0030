@@ -4,33 +4,42 @@ on:
   issues:
     types: [opened, labeled]
 
-permissions:
-  issues: write
-
 jobs:
   auto-comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Comment based on label
-        uses: actions/github-script@v7
+      - name: Comment on bug issues
+        if: contains(github.event.issue.labels.*.name, 'bug')
+        uses: actions/github-script@v6
         with:
           script: |
-            const issue = context.payload.issue;
-            const labels = issue.labels.map(label => label.name);
-            const comments = {
-              bug: "Thank you. We will fix it.",
-              feature: "Thank you, we will consider to include this feature.",
-              discussion: "Thanks for starting this discussion! We welcome community input."
-            };
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thank you. We will fix it.'
+            })
 
-            for (const [label, body] of Object.entries(comments)) {
-              if (labels.includes(label)) {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  body
-                });
-                break;
-              }
-            }
+      - name: Comment on feature issues
+        if: contains(github.event.issue.labels.*.name, 'feature')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thank you, we will consider to include this feature.'
+            })
+
+      - name: Comment on discussion issues
+        if: contains(github.event.issue.labels.*.name, 'discussion')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thanks for starting this discussion! We welcome community input.'
+            })
