@@ -1,20 +1,17 @@
-name: Auto Comment on Issues
+name: Issue Auto Comment
 on:
   issues:
     types: [opened]
 jobs:
   auto-comment:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
-      - name: Post comment based on label
-        uses: actions/github-script@v7
+      - uses: actions/github-script@v7
         with:
           script: |
             const labels = context.payload.issue.labels.map(l => l.name);
-            let body = null;
-            if (labels.includes('bug')) body = 'Thank you. We will fix it.';
-            else if (labels.includes('feature')) body = 'Thank you, we will consider to include this feature.';
-            else if (labels.includes('discussion')) body = 'Thanks for starting this discussion! We welcome community input.';
-            if (body) { await github.rest.issues.createComment({owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body}); }
+            let body = "";
+            if (labels.includes("bug")) body = "Thank you. We will fix it.";
+            else if (labels.includes("feature")) body = "Thank you, we will consider to include this feature.";
+            else if (labels.includes("discussion")) body = "Thanks for starting this discussion! We welcome community input.";
+            if (body) await github.rest.issues.createComment({owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.issue.number, body});
