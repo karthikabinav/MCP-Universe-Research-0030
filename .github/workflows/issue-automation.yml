@@ -14,7 +14,7 @@ jobs:
           script: |
             const labels = context.payload.issue.labels.map(l => l.name);
             let body = null;
-            if (labels.includes("bug")) { body = "Thank you. We will fix it."; }
-            else if (labels.includes("feature")) { body = "Thank you, we will consider to include this feature."; }
-            else if (labels.includes("discussion")) { body = "Thanks for starting this discussion! We welcome community input."; }
+            if (labels.includes('bug')) { body = 'Thank you. We will fix it.'; }
+            else if (labels.includes('feature')) { body = 'Thank you, we will consider to include this feature.'; }
+            else if (labels.includes('discussion')) { body = 'Thanks for starting this discussion! We welcome community input.'; }
             if (body) { await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body: body }); }
