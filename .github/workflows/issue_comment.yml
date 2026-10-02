@@ -1,24 +1,42 @@
-name: Issue Label Comment
+name: Issue Commenter
 on:
   issues:
     types: [opened, labeled]
+
 jobs:
-  comment:
+  auto-comment:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - uses: actions/github-script@v6
         with:
           script: |
-            const labels = context.payload.issue.labels.map(l => l.name);
-            let body = "";
-            if (labels.includes("bug")) body = "Thank you. We will fix it.";
-            else if (labels.includes("feature")) body = "Thank you, we will consider to include this feature.";
-            else if (labels.includes("discussion")) body = "Thanks for starting this discussion! We welcome community input.";
-            if (body) {
-              github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                body: body
-              });
+            const action = context.payload.action;
+            let labelsToCheck = [];
+            
+            if (action === 'opened') {
+              labelsToCheck = context.payload.issue.labels.map(l => l.name);
+            } else if (action === 'labeled') {
+              labelsToCheck = [context.payload.label.name];
+            }
+            
+            for (const label of labelsToCheck) {
+              let body = '';
+              if (label === 'bug') {
+                body = 'Thank you. We will fix it.';
+              } else if (label === 'feature') {
+                body = 'Thank you, we will consider to include this feature.';
+              } else if (label === 'discussion') {
+                body = 'Thanks for starting this discussion! We welcome community input.';
+              }
+              
+              if (body) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: body
+                });
+              }
             }
