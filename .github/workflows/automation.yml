@@ -1,0 +1,19 @@
+name: Issue Auto Comment
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: bug
+        if: contains(github.event.issue.labels.*.name, "bug")
+        run: echo "Thank you. We will fix it."
+      - name: feature
+        if: contains(github.event.issue.labels.*.name, "feature")
+        run: echo "Thank you, we will consider to include this feature."
+      - name: discussion
+        if: contains(github.event.issue.labels.*.name, "discussion")
+        run: echo "Thanks for starting this discussion! We welcome community input."
